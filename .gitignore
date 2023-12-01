@@ -1,2 +1,14 @@
-.git
-node_modules
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+
+# Build directories
+dist/
+build/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
