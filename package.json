@@ -1,6 +1,6 @@
 {
   "name": "vue-mutable-grid-layout",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple dynamic re-organizable grid for vue",
   "main": "index.js",
   "module": "index.js",

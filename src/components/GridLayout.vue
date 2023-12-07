@@ -264,7 +264,7 @@ export default {
 
       if (validMove && isOccupied && !isOccupied.overlap) {
         this.moveItem(this.draggingItem, newPosition);
-        this.updatedItems(this.items);
+        this.updateItems(this.items);
       } else if (validMove && isOccupied.overlap && !canSwap) {
         console.warn(
           `Cannot swap item ${this.draggingItem.id}. Dropped at x=${gridX}, y=${gridY}, likely no spaces`
