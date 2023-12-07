@@ -40,7 +40,15 @@ export default {
 | `borderRadius`         | Number                    | No       | `0`          | Border radius for grid items.                         |
 | `showScrollOnOverflow` | Boolean                   | No       | `true`       | Flag to show custom scrollbars.                       |
 
+## Items Prop  ---- ***please read***
+##### each item will want to have either a component or a rawHTML prop passed to it.
+&nbsp;
 
+| Prop                   | Type                      | Required | Default      | Description                                           |
+|------------------------|---------------------------|----------|--------------|-------------------------------------------------------|
+| `component`            | Object                    | No       | null         | Make sure to use `markRaw` for your component         |
+| `props`            | Object                    | No       | null         |  If passing in a component, pass the props for it here         |
+| `rawHTML`              | String                    | No       | null         | Option to pass in raw HTML rather than a component.   |
 
 ## Events
 
@@ -63,6 +71,7 @@ Here is a simple example of how to use Vue Mutable Grid Layout:
     :rows="2"
     :gridWidth="1000"
     :gridHeight="800"
+    showErrorToast
     :itemGap="5"
     :borderRadius="5"
     :showScroll="true"
@@ -70,18 +79,18 @@ Here is a simple example of how to use Vue Mutable Grid Layout:
     @updatedItemsList="handleUpdateItems"
   >
     <template v-slot="{ item }">
-      <!-- Your custom content here -->
-      Content for item {{ item.id }}
-      <YourComponent />
-      <!-- or -->
-      <div v-html="returnTest()"></div>
+      <div>
+        <div v-if="item.id === 1" v-html="getCurrent12hrTime"></div>
+      </div>
     </template>
   </GridLayout>
+  <button @click="getAndSetFromStorage">SET FROM STORAGE</button>
 </template>
 
 <script>
 // Import the GridLayout component
 import GridLayout from 'vue-mutable-grid-layout';
+import { markRaw } from 'vue';
 
 export default {
   components: { GridLayout },
@@ -89,7 +98,8 @@ export default {
     return {
       // Define your grid items here
       gridItems: [
-        { id: 1, color: "red", customClass: 'my-custom-class', customStyle: { color: 'yellow', fontSize: '20px' } },
+        { id: 1, component: markRaw(<YourComonent>), props: {<PropsForPAssedInComponment>}, color: "red", customClass: 'my-custom-class', customStyle: { color: 'yellow', fontSize: '20px' } },
+        { id: 1, rawHTML: this.returnTest(),  },
         // ... other items
       ],
     };
@@ -142,7 +152,7 @@ export default {
         <li style="margin-bottom: 5px; color: #555;">Item 3</li>
         <br />
       </ul>
-      <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+      <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor  : pointer;">
         Click Me
       </button>
       <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
