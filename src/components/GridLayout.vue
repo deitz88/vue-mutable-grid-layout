@@ -372,7 +372,6 @@ export default {
         (item) => item.id === movedItem.id
       );
       if (itemIndex !== -1) {
-        console.log(true, true)
         updatedItems[itemIndex].x = newPosition.x;
         updatedItems[itemIndex].y = newPosition.y;
       }
