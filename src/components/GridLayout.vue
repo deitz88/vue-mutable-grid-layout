@@ -264,7 +264,6 @@ export default {
 
       if (validMove && isOccupied && !isOccupied.overlap) {
         this.moveItem(this.draggingItem, newPosition);
-        this.updatedItems(this.items);
       } else if (validMove && isOccupied.overlap && !canSwap) {
         console.warn(
           `Cannot swap item ${this.draggingItem.id}. Dropped at x=${gridX}, y=${gridY}, likely no spaces`
@@ -368,11 +367,12 @@ export default {
     },
 
     moveItem(movedItem, newPosition) {
-      let updatedItems = JSON.parse(JSON.stringify(this.items));
+      let updatedItems = this.processedItems;
       const itemIndex = updatedItems.findIndex(
         (item) => item.id === movedItem.id
       );
       if (itemIndex !== -1) {
+        console.log(true, true)
         updatedItems[itemIndex].x = newPosition.x;
         updatedItems[itemIndex].y = newPosition.y;
       }
