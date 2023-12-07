@@ -24,6 +24,7 @@
 
 <script>
 import GridLayout from "vue-mutable-grid-layout";
+import { markRaw } from "vue";
 
 export default {
   components: { GridLayout },
@@ -63,8 +64,8 @@ export default {
       return [
         { id: 1, active: true, color: "red",  customClass: 'my-custom-class', 
         customStyle: { color: 'yellow', fontSize: '20px' } },
-        { id: 2, active: true, backgroundColor: "#0000FF80", color: "poop", width: 2 },
-        { id: 3, active: true, backgroundColor: "#00FF0070", color: "green" },
+        { id: 2, active: true, backgroundColor: "#0000FF80", color: "poop", component: markRaw(<YourComponent>), width: 2 },
+        { id: 3, active: true, backgroundColor: "#00FF0070", color: "green", rawHTML: this.returnTest() },
         { id: 4, active: true, backgroundColor: "#800080", color: "purple", width: 1 },
         { id: 5, active: true, backgroundColor: "#888888", color: "grey"},
         { id: 6, active: true, backgroundColor: "#500080", color: "purple", width: 1 },

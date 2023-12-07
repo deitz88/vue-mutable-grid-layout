@@ -29,13 +29,24 @@
       @dragleave="onItemHoverEnd($event, { x: item.x, y: item.y })"
       @drop="onItemHoverEnd($event, { x: item.x, y: item.y })"
     >
-      <slot :item="item" :index="index"></slot>
+      <div v-if="item.rawHTML" v-html="item.rawHTML"></div>
+
+      <component
+        v-else-if="item.component"
+        :is="item.component"
+        v-bind="item.props"
+      >
+        <template>
+          <slot :item="item" :index="index"></slot>
+        </template>
+      </component>
     </GridModule>
   </div>
 </template>
 
 
 <script>
+import { markRaw, shallowRef } from "vue";
 import GridModule from "./GridModule.vue";
 
 export default {
@@ -95,10 +106,10 @@ export default {
     return {
       draggingItem: null,
       originalCell: null,
-      hoverTimer: null,
       hoveredCell: null,
       error: null,
       inactiveItems: undefined,
+      itemsRef: shallowRef([]),
     };
   },
   computed: {
@@ -109,18 +120,6 @@ export default {
         gridTemplateColumns: `repeat(${this.cols}, 1fr)`,
         gridTemplateRows: `repeat(${this.rows}, 1fr)`,
         gap: `${this.itemGap}px`,
-      };
-    },
-    isCellHighlighted() {
-      return (cell) => {
-        if (!this.highlightCellOnMove) {
-          return false;
-        }
-        return (
-          this.hoveredCell &&
-          this.hoveredCell.x === cell.x &&
-          this.hoveredCell.y === cell.y
-        );
       };
     },
     processedItems() {
@@ -188,42 +187,60 @@ export default {
       }
     },
   },
+  created() {
+    this.updateItems(this.items);
+  },
+  watch: {
+    items(newItems) {
+      this.updateItems(newItems);
+    },
+  },
   methods: {
     normalizeSize(value) {
       return typeof value === "number" ? `${value}px` : value;
     },
+    updateItems(newItems) {
+      this.itemsRef.value = newItems.map((item) => {
+        if (item.component) {
+          item.component = markRaw(item.component);
+        }
+        return item;
+      });
+    },
     itemDragStart(item) {
       this.draggingItem = item;
       this.originalCell = { x: item.x, y: item.y };
+      this.hoveredCell = null;
     },
 
     itemDragEnd() {
-      // Reset dragging state and original cell on drag end
       this.draggingItem = null;
       this.originalCell = null;
-      // Clear the hover timer when dragging ends
-      clearTimeout(this.hoverTimer);
+      this.hoveredCell = null;
     },
+
     onItemHoverStart(event, cell) {
-      // Reset and start the hover timer
-      clearTimeout(this.hoverTimer); // Clear existing timer if any
-      this.hoverTimer = setTimeout(() => {
+      setTimeout(() => {
         if (
           this.draggingItem &&
           !(cell.x === this.originalCell.x && cell.y === this.originalCell.y)
         ) {
-          // console.log(true);
+          this.hoveredCell = cell;
         }
-      }, 1500); // Set timeout for 1.5 seconds
+      }, 10);
     },
 
     onItemHoverEnd(event, cell) {
-      // Clear the hover timer when hovering ends
-      clearTimeout(this.hoverTimer);
       this.hoveredCell = null;
     },
+
+    isCellHighlighted(cell) {
+      if (!this.highlightCellOnMove || !this.hoveredCell) {
+        return false;
+      }
+      return this.hoveredCell.x === cell.x && this.hoveredCell.y === cell.y;
+    },
     onDrop(event) {
-      clearTimeout(this.hoverTimer);
       if (!this.draggingItem) {
         console.warn("No item is being dragged.");
         return;
@@ -247,6 +264,7 @@ export default {
 
       if (validMove && isOccupied && !isOccupied.overlap) {
         this.moveItem(this.draggingItem, newPosition);
+        this.updatedItems(this.items);
       } else if (validMove && isOccupied.overlap && !canSwap) {
         console.warn(
           `Cannot swap item ${this.draggingItem.id}. Dropped at x=${gridX}, y=${gridY}, likely no spaces`
@@ -282,9 +300,10 @@ export default {
       return isValid;
     },
     isSpotOccupied(newPosition, item) {
+      let sameSpot;
       for (const otherItem of this.processedItems) {
         if (otherItem.id === item.id) {
-          continue;
+          sameSpot = true;
         }
 
         const occupiedXRange = [otherItem.x, otherItem.x + otherItem.width - 1];
@@ -313,6 +332,7 @@ export default {
         msg: "No overlap detected",
         item: item,
         otherItem: null,
+        sameSpot: sameSpot ?? false,
       };
     },
 
