@@ -29,7 +29,7 @@ export default {
     },
     backgroundColor: {
       type: String,
-      default: "#000333",
+      default: "#000",
     },
     position: {
       type: Object,
